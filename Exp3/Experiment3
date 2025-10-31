@@ -1,0 +1,24 @@
+create table student (rollno int primary key,name varchar(40), category varchar(40), district varchar(30), state varchar(30));
+
+create table student_rank (rollno int primary key, mark int, srank int, foreign key(rollno) references student(rollno));
+
+insert into student values (200,'shan','general','kottayam','kerala'),(201,'sharoon','st','kozhikode','kerala'),(202,'indraj','obc','thrissur','karnataka'),(203,'elroy','obc','kottayam','karnataka'),(204,'shahir','st','kollam','tamilnadu'),(205,'pranav','general','alapey','tamilnadu'),(206,'athul','sc','kottayam','kerala'),(207,'hari','obc','kollam','tamilnadu'), (208,'vivek','st','ernakulam','kerala'),(209,'jins','general','kottayam','kerala');
+
+insert into student_rank 
+values (200,'360','11928'),(201,'360','2031'), (202,'433','9343'), (203,'375','10922'),(204,'240','13938'),(205,'375','45222'),(206,'192','23002'),(207,'702','875'), (208,'286','45222'),(209,'385','14500');
+
+
+a)
+select s.*,r.srank from student s join student_rank r on s.rollno=r.rollno where (s.category,r.srank) in (select s1.category,r1.srank from student s1 join student_rank r1 on s1.rollno=r1.rollno group by s1.category,r1.srank having count(*)>1) order by s.category,r.srank;
+
+b)
+select s.*,r.srank from student s join student_rank r on s.rollno=r.rollno where r.srank in (select min(r1.srank) from student s1 join student_rank r1 on s1.rollno=r1.rollno where s.category=s1.category and s.state=s1.state);
+
+c)
+select s.*,r.mark,r.srank, case when exists(select 1 from student_rank r1 where r1.mark=r.mark and r1.srank<>r.srank) then 'first category' when exists (select 1 from student_rank r2 where r2.srank=r.srank and r2.mark<>r.mark) then 'second category' end as status from student s join student_rank r on s.rollno=r.rollno where exists (select 1 from student_rank r1 where r1.mark=r.mark and r1.srank<>r.srank) or exists (select 1 from student_rank r2 where r2.srank=r.srank and r2.mark<>r.mark);
+
+d)
+(select s.category, avg(r.mark) as avg_marks,'highest' as status from student s join student_rank r on s.rollno=r.rollno group by s.category order by avg_marks desc limit 1) union (select s.category, avg(r.mark) as avg_marks,'least' as status from student s join student_rank r on s.rollno=r.rollno group by s.category order by avg_marks asc limit 1);
+
+e)
+select s.category, avg(r.mark) as avg_marks from student s join student_rank r on s.rollno=r.rollno group by s.category having avg_marks < (select avg(mark) from student_rank);
