@@ -1,0 +1,21 @@
+create table book (accno int primary key, title varchar(30),publisher varchar(30), author varchar(30), purchase date, publish date, status varchar(30) check (status in ("issued","present in the library","reference","cannot be issued")));
+
+insert into book values (1,'dbms','pearson','korth','2025-03-01','2022-07-15','present in the library'),(2,'dbms','pearson','korth','2025-03-02','2022-07-15','issued'),(3,'dbms','pearson','korth','2025-03-05','2022-07-15','reference'),(4,'os','mcgraw','galvin','2025-04-01','2020-01-10','issued'),(5,'os','mcgraw','galvin','2025-04-02','2020-01-10','present in the library'),(6,'Computer Network','Pearson','Tanenbaum','2025-07-10','2021-11-20','reference'),(7,'Computer Networks','Pearson','Tanenbaum','2025-07-12','2021-11-20','present in the library'),(8,'Computer Networks','Pearson','Tanenbaum','2025-07-15','2021-11-20','issued'),(12,'Discrete Mathematics','Wiley','Rosen','2024-11-01','2018-02-10','cannot be issued'),(13,'Discrete Mathematics','Wiley','Rosen','2024-11-03','2018-02-10','present in the library'),(14,'Artificial','Springer','Russell','2025-08-10','2025-01-20','present in the library'),(15,'Artificial','Springer','Russell','2025-08-11','2025-01-20','present in the library'),(16,'Artificial','Springer','Russell','2025-08-12','2025-01-20','issued'),(17,'Artificial','Springer','Russell','2025-08-13','2025-01-20','reference');
+
+a)
+select title,count(*) as copies from book group by title;
+
+b)
+select title,count(*) as reference_copies from book where status='reference' group by title;
+
+c)
+select title, sum(status='issued') as issued_copies, sum(status='present in the library') as present_copies, sum(status='reference') as reference_copies from book group by title;
+
+d)
+select * from book where status='cannot be issued' order by publisher;
+
+e)
+select * from book where purchase >= curdate()-interval 6 month;
+
+f)
+select title,purchase,publish from book where title in (select title from book where datediff(purchase,publish)<365 group by title having count(*)>2);
