@@ -1,0 +1,47 @@
+create table branch (branch_id int, branch_name varchar(30), branch_city varchar(30));
+
+create table customer (customer_id int, customer_name varchar(30), customer_city varchar(30));
+
+create table savings (customer_id int, branch_id int, saccno int, balance decimal(10,2));
+
+create table loan (customer_id int, branch_id int, laccno int, balance decimal(10,2));
+
+insert into branch values (1,'Main Branch','Chennai'),(2,'City Center','Chennai'),(3,'Downtown Branch','Bangalore'),(4,'Tech Park','Bangalore'),(5,'Suburban Branch','Mumbai'),(6,'Harbor View','Mumbai'),(7,'Green Valley','Hyderabad'),(8,'Northern Branch','Delhi');
+
+
+insert into customer values(101,'John Smith','Chennai'),(102,'Jane Doe','Bangalore'),(103,'Mike Johnson','Mumbai'),(104,'Sarah Wilson','Chennai'),(105,'Robert Brown','Bangalore'),(106,'Emily Davis','Mumbai'),(107,'David Miller','Hyderabad'),(108,'Lisa Anderson','Chennai'),(109,'Paul Walker','Bangalore'),(110,'Emma Thompson','Mumbai'),(111,'James Wilson','Delhi'),(112,'Sophia Garcia','Hyderabad'),(113,'William Taylor','Delhi'),(114,'Olivia Martinez','Chennai'),(115,'Michael Chen','Bangalore');
+
+
+
+insert into savings values (101,1,1001,50000.00),(102,3,1002,75000.00),(103,5,1003,25000.00),(104,2,1004,100000.00),(101,2,1005,30000.00),(105,4,1006,45000.00),(106,6,1007,45000.00),(107,7,1008,35000.00),(108,1,1009,80000.00),(109,3,1010,90000.00),(110,5,1011,90000.00),(111,8,1012,40000.00),(112,7,1013,65000.00),(113,8,1014,30000.00),(114,1,1015,70000.00);
+
+insert into loan values (101,1,2001,200000.00),(102,3,2002,150000.00),(103,5,2003,300000.00),(104,2,2004,250000.00),(105,4,2005,100000.00),(106,6,2006,175000.00),(101,3,2007,50000.00),(102,4,2008,75000.00),(110,5,2009,400000.00),(110,6,2010,200000.00),(110,1,2011,100000.00),(111,8,2012,350000.00),(112,7,2013,180000.00),(113,8,2014,220000.00),(115,4,2015,275000.00);
+
+a)
+(select distinct c.customer_id,c.customer_name,c.customer_city,'savings' as account from customer c join savings s on c.customer_id=s.customer_id join branch b on s.branch_id=b.branch_id where c.customer_city=b.branch_city) union (select distinct c.customer_id,c.customer_name,c.customer_city,'loan' as account from customer c join loan l on c.customer_id=l.customer_id join branch b on l.branch_id=b.branch_id where c.customer_city=b.branch_city);
+
+b)
+(select distinct c.customer_id,c.customer_name,c.customer_city,'savings' as account from customer c join savings s on c.customer_id=s.customer_id join branch b on s.branch_id=b.branch_id where b.branch_city='Chennai') union (select distinct c.customer_id,c.customer_name,c.customer_city,'loan' as account from customer c join loan l on c.customer_id=l.customer_id join branch b on l.branch_id=b.branch_id where b.branch_city='Chennai');
+
+c)
+select c.customer_id,c.customer_name,group_concat(distinct b.branch_name order by b.branch_name separator ', ') as branch_names from customer c join (select customer_id,branch_id from savings union select customer_id,branch_id from loan) as t on c.customer_id=t.customer_id join branch b on t.branch_id=b.branch_id group by c.customer_id,c.customer_name having count(distinct b.branch_name)>1;
+
+d)
+(select c.customer_id,c.customer_name,'first' as status from customer c join loan l on c.customer_id=l.customer_id where c.customer_id not in (select customer_id from savings)) union (select c.customer_id,c.customer_name,'second' as status from customer c join savings s on c.customer_id=s.customer_id where c.customer_id not in (select customer_id from loan)) union (select c.customer_id,c.customer_name,'third' as status from customer c where c.customer_id in (select c.customer_id from savings) and c.customer_id in(select customer_id from loan));
+
+e)
+select c.customer_id,c.customer_name,group_concat(distinct b.branch_name order by b.branch_name separator ', ') as bbranch_names from customer c join loan l on c.customer_id=l.customer_id join branch b on l.branch_id=b.branch_id where c.customer_id not in (select customer_id from savings) group by c.customer_id,c.customer_name having count(distinct b.branch_name)>2;
+
+f)
+
+
+
+
+
+create view savings_details as select c.customer_id,c.customer_name,c.customer_city,b.branch_id,b.branch_city,s.saccno,s.balance from customer c,savings s,branch b where c.customer_id=s.customer_id and s.branch_id=b.branch_id;
+
+create view loan_details as select c.customer_id,c.customer_name,c.customer_city,b.branch_id,b.branch_city,l.laccno,l.balance from customer c,loan l,branch b where c.customer_id=l.customer_id and l.branch_id=b.branch_id;
+
+(select distinct customer_id,customer_name,customer_city,branch_city,'savings' as account from savings_details where customer_city=branch_city) union (select distinct customer_id,customer_name,customer_city,branch_city,'loan' as account from loan_details where customer_city=branch_city);
+
+(select distinct customer_id,customer_name,customer_city,branch_city,'savings' as account from savings_details where branch_city='Chennai') union (select distinct customer_id,customer_name,customer_city,branch_city,'loan' as account from loan_details where branch_city='Chennai');
