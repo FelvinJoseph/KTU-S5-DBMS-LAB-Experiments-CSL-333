@@ -1,0 +1,63 @@
+CREATE TABLE INC (
+  2      empid NUMBER,
+  3      incr NUMBER
+  4  );
+
+Table created.
+
+SQL> INSERT INTO EMPLOYEE3 VALUES (301, 'Gokul', 20000);
+
+1 row created.
+
+SQL> INSERT INTO EMPLOYEE3 VALUES (302, 'Hari', 30000);
+
+1 row created.
+
+SQL> COMMIT;
+
+Commit complete.
+
+SQL> CREATE TABLE EMPLOYEE3 (
+  2      empid NUMBER PRIMARY KEY,
+  3      empname VARCHAR2(50),
+  4      salary NUMBER
+  5  );
+
+Table created.
+
+SQL> CREATE OR REPLACE TRIGGER salary_increment_trigger
+  2  AFTER UPDATE OF salary ON EMPLOYEE3 FOR EACH ROW
+  3  DECLARE v_diff NUMBER;
+  4  BEGIN
+  5      v_diff := :NEW.salary - :OLD.salary;
+  6      IF v_diff > 1000 THEN
+  7          INSERT INTO INC(empid, incr)
+  8          VALUES (:OLD.empid, v_diff);
+  9          DBMS_OUTPUT.PUT_LINE('Increment record inserted for EmpID: ' || :OLD.empid || ', Increment: ' || v_diff);
+ 10      END IF;
+ 11  END;
+ 12  /
+
+Trigger created.
+
+SQL> UPDATE EMPLOYEE3 SET salary = 22000 WHERE empid = 301;
+Increment record inserted for EmpID: 301, Increment: 2000
+
+1 row updated.
+
+SQL> UPDATE EMPLOYEE3 SET salary = 30500 WHERE empid = 302;
+
+1 row updated.
+
+SQL> SELECT * FROM INCREMENT;
+SELECT * FROM INCREMENT
+              *
+ERROR at line 1:
+ORA-00903: invalid table name
+
+
+SQL> SELECT * FROM INC;
+
+     EMPID       INCR
+---------- ----------
+       301       2000
