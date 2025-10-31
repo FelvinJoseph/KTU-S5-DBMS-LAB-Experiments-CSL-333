@@ -1,0 +1,10 @@
+ 1. Given the schema Person (pid, pname, DOB) . Find the age of each person using cursor.
+
+
+ 2. Given the schema Employee(empid, empname, joining date, relieving date, salary)
+ (a) Find the service (in years) for each relieved employee.
+ (b) Find the Pension amount to be paid to each relieved employee. (Pension is equal to the years of
+ service *salary divided by 100.)
+
+
+Use cursors.
