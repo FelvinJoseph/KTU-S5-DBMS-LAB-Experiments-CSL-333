@@ -1,0 +1,50 @@
+ CREATE TABLE Person (
+  2      pid NUMBER PRIMARY KEY,
+  3      pname VARCHAR2(50),
+  4      DOB DATE
+  5  );
+
+Table created.
+SQL>
+SQL> INSERT INTO Person VALUES (1, 'Ravi', TO_DATE('15-06-2001', 'DD-MM-YYYY'));
+
+1 row created.
+
+SQL> INSERT INTO Person VALUES (2, 'Meena', TO_DATE('23-03-1999', 'DD-MM-YYYY'));
+
+1 row created.
+
+SQL> INSERT INTO Person VALUES (3, 'Ajay', TO_DATE('10-12-1985', 'DD-MM-YYYY'));
+
+1 row created.
+
+SQL>
+SQL> COMMIT;
+
+Commit complete.
+SQL> SET SERVEROUTPUT ON;
+SQL>
+SQL> DECLARE
+  2      CURSOR person_cur IS
+  3          SELECT pid, pname, DOB FROM Person;
+  4
+  5      v_pid Person.pid%TYPE;
+  6      v_name Person.pname%TYPE;
+  7      v_dob Person.DOB%TYPE;
+  8      v_age NUMBER;
+  9  BEGIN
+ 10      OPEN person_cur;
+ 11      LOOP
+ 12          FETCH person_cur INTO v_pid, v_name, v_dob;
+ 13          EXIT WHEN person_cur%NOTFOUND;
+ 14
+ 15          v_age := TRUNC(MONTHS_BETWEEN(SYSDATE, v_dob) / 12);
+ 16
+ 17          DBMS_OUTPUT.PUT_LINE('PID: ' || v_pid || ' Name: ' || v_name || ' Age: ' || v_age);
+ 18      END LOOP;
+ 19      CLOSE person_cur;
+ 20  END;
+ 21  /
+PID: 1 Name: Ravi Age: 24
+PID: 2 Name: Meena Age: 26
+PID: 3 Name: Ajay Age: 39
