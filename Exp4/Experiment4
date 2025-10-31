@@ -1,0 +1,20 @@
+create table book (accno int, title varchar(40), publisher varchar(40), year int, purchase date, status varchar(30));
+
+create table member(memberid int, name varchar(30), number int, max_limit int);
+
+create table books_issued (accno int, memberid int, issue date);
+
+a)
+select b.accno, b.title, bi.issue from book b join books_issued bi on b.accno=bi.accno where b.status='ISSUED' and datediff(curdate(),issue)>15;
+
+
+or
+
+select b.accno, b.title,b.publisher,  bi.issue from book b join books_issued bi on b.accno=bi.accno where b.status='ISSUED' and issue <= curdate()-interval 1 year;
+
+b)
+select memberid, name, number, max_limit from member where number>=max_limit;
+
+c)
+(select b.accno, b.title, count(*) as members_count,'maximum' as status from book b join books_issued bi on b.accno=bi.accno group by b.accno, b.title order by count(*) desc limit 1) union (select b.accno, b.title, count(*) as members_count,'minimum' as status from book b join books_issued bi on b.accno=bi.accno group by b.accno, b.title order by count(*) asc limit 1);
+
